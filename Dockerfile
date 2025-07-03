@@ -1,11 +1,16 @@
 # Etapa 1: Instalação das Dependências
+# Usa uma imagem Node.js baseada em Alpine para um tamanho menor
 FROM node:18-alpine AS deps
 WORKDIR /app
+
+# CORREÇÃO: Instala as dependências de build necessárias para o 'mediasoup'
+# python, make e g++ são essenciais para compilar os módulos nativos.
+RUN apk add --no-cache python3 make g++
 
 # Copia os ficheiros de manifesto de pacotes
 COPY package.json package-lock.json ./
 
-# Instala todas as dependências (incluindo as de desenvolvimento para o build)
+# Instala todas as dependências
 RUN npm install
 
 # ----------------------------------------------------------------
@@ -25,6 +30,7 @@ RUN npm run build
 # ----------------------------------------------------------------
 
 # Etapa 3: Imagem Final de Produção
+# Esta imagem não contém as ferramentas de build, tornando-a mais leve e segura.
 FROM node:18-alpine AS runner
 WORKDIR /app
 
